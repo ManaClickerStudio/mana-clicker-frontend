@@ -1,29 +1,29 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useGameStore } from "../store/gameStore";
 
 // Game Loop
-export const useGameLoop = (isAuthenticated: boolean) => {
-  const { state, incrementMana, saveGame, isGameLoading } = useGameStore();
+export const useGameLoop = (isActive: boolean) => {
+  const incrementMana = useGameStore((s) => s.incrementMana);
+  const currentMPSRef = useRef(0);
+
+  // Keep MPS in sync without causing re-renders
+  useEffect(() => {
+    return useGameStore.subscribe((state) => {
+      currentMPSRef.current = state.state.currentMPS;
+    });
+  }, []);
 
   // Mana Increment Loop
   useEffect(() => {
-    if (isAuthenticated && !isGameLoading) {
-      const interval = setInterval(() => {
-        const mps = state.currentMPS;
-        if (mps > 0) {
-          incrementMana(mps);
-        }
-      }, 1000);
+    if (!isActive) return;
 
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated, isGameLoading, state.currentMPS, incrementMana]);
+    const interval = setInterval(() => {
+      const mps = currentMPSRef.current;
+      if (mps > 0) {
+        incrementMana(mps);
+      }
+    }, 1000);
 
-  // Auto-save Loop
-  useEffect(() => {
-    if (isAuthenticated && !isGameLoading) {
-      const saveInterval = setInterval(saveGame, 60000); // 1 minute
-      return () => clearInterval(saveInterval);
-    }
-  }, [isAuthenticated, isGameLoading, saveGame]);
+    return () => clearInterval(interval);
+  }, [isActive, incrementMana]);
 };
