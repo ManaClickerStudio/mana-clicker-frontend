@@ -10,6 +10,11 @@ export interface AuthResponse {
   message?: string;
 }
 
+export interface AuthVerifyResponse {
+  success: boolean;
+  username: string;
+}
+
 // Static Game Data (JSON Files)
 export type UpgradeType = "click" | "click_mps" | "global_mps" | "building";
 
@@ -91,7 +96,7 @@ export interface GameContextType {
   clickMana: () => void;
   buyBuilding: (buildingId: string) => void;
   buyUpgrade: (upgradeId: string) => void;
-  loadGame: () => Promise<void>;
+  loadGame: (token: string) => Promise<void>;
   incrementMana: (amount: number) => void;
-  saveGame: () => Promise<void>;
+  saveGame: (token: string) => Promise<void>;
 }

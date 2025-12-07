@@ -1,12 +1,5 @@
 import { create } from "zustand";
-import {
-  GameState,
-  UserBuildings,
-  Building,
-  Upgrade,
-  Achievement,
-  GameContextType,
-} from "../types/game";
+import { GameState, Building, Upgrade, GameContextType } from "../types/game";
 import gameService from "../services/gameService";
 
 // Configuration
@@ -111,12 +104,12 @@ export const useGameStore = create<GameContextType>((set, get) => ({
   isGameLoading: false,
   error: null,
 
-  loadGame: async () => {
+  loadGame: async (token: string) => {
     set({ isGameLoading: true, error: null });
     try {
       const [staticData, userData] = await Promise.all([
         gameService.getStaticData(),
-        gameService.loadGame(),
+        gameService.loadGame(token),
       ]);
 
       let newState: GameState = {
@@ -226,7 +219,7 @@ export const useGameStore = create<GameContextType>((set, get) => ({
     });
   },
 
-  saveGame: async () => {
+  saveGame: async (token: string) => {
     const state = get().state;
 
     const {
@@ -241,7 +234,7 @@ export const useGameStore = create<GameContextType>((set, get) => ({
     const finalStateToSave = { ...stateToSave, lastUpdate: Date.now() };
 
     try {
-      await gameService.saveGame(finalStateToSave);
+      await gameService.saveGame(finalStateToSave, token);
       set((store) => ({
         state: { ...store.state, lastUpdate: finalStateToSave.lastUpdate },
       }));

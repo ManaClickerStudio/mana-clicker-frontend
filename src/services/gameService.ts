@@ -4,7 +4,6 @@ import {
   Building,
   Upgrade,
   Achievement,
-  AuthResponse,
 } from "../types/game";
 
 const API_URL = "http://localhost:4000/api/";
@@ -14,22 +13,19 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
-// Interceptor - Add JWT Token to Requests
-api.interceptors.request.use(
-  (config) => {
-    const userJSON = localStorage.getItem("user");
-    if (userJSON) {
-      const user: AuthResponse = JSON.parse(userJSON);
-      config.headers.Authorization = `Bearer ${user.token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Helper to get headers with token
+const getConfig = (token?: string) => {
+  if (token) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
   }
-);
+  return {};
+};
 
-// Get Static Data
+// Get Static Data (Public)
 const getStaticData = async (): Promise<{
   buildings: Building[];
   upgrades: Upgrade[];
@@ -48,8 +44,8 @@ const getStaticData = async (): Promise<{
   };
 };
 
-const loadGame = async (): Promise<GameState> => {
-  const response = await api.get<GameState>("game/load");
+const loadGame = async (token: string): Promise<GameState> => {
+  const response = await api.get<GameState>("game/load", getConfig(token));
   return response.data;
 };
 
@@ -62,9 +58,10 @@ const saveGame = async (
     | "staticAchievements"
     | "currentMPS"
     | "currentMPC"
-  >
+  >,
+  token: string
 ): Promise<void> => {
-  await api.post("game/save", gameStateToSave);
+  await api.post("game/save", gameStateToSave, getConfig(token));
 };
 
 const gameService = {
