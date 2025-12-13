@@ -1,23 +1,16 @@
 import { create } from "zustand";
-import {
+import type {
   GameState,
-  UserBuildings,
   Building,
   Upgrade,
-  Achievement,
   GameContextType,
-} from "../types/game";
-import gameService from "../services/gameService";
-
-// Configuration
-const COST_MULTIPLIER = 1.15; // 15% cost multiplier for buildings
-
-export const calculateBuildingCost = (
-  baseCost: number,
-  currentCount: number
-): number => {
-  return Math.ceil(baseCost * Math.pow(COST_MULTIPLIER, currentCount));
-};
+  PurchaseMultiplier,
+} from "@/entities/game";
+import { gameService } from "@/shared/api";
+import {
+  calculateBuildingCost,
+  calculateMultipleCost,
+} from "@/features/building-purchase";
 
 // Initial Game State
 const INITIAL_GAME_STATE: Omit<
@@ -70,8 +63,8 @@ const calculateProduction = (
           mpsFromClick += upgrade.bonus;
           break;
         case "building":
-          if ((upgrade as any).target) {
-            const targetId = (upgrade as any).target;
+          if ((upgrade as Upgrade).target) {
+            const targetId = (upgrade as Upgrade).target!;
             if (!buildingMultipliers[targetId]) {
               buildingMultipliers[targetId] = 1;
             }
@@ -110,13 +103,18 @@ export const useGameStore = create<GameContextType>((set, get) => ({
   } as GameState,
   isGameLoading: false,
   error: null,
+  purchaseMultiplier: 1 as PurchaseMultiplier,
 
-  loadGame: async () => {
+  setPurchaseMultiplier: (multiplier: PurchaseMultiplier) => {
+    set({ purchaseMultiplier: multiplier });
+  },
+
+  loadGame: async (token: string) => {
     set({ isGameLoading: true, error: null });
     try {
       const [staticData, userData] = await Promise.all([
         gameService.getStaticData(),
-        gameService.loadGame(),
+        gameService.loadGame(token),
       ]);
 
       let newState: GameState = {
@@ -134,11 +132,13 @@ export const useGameStore = create<GameContextType>((set, get) => ({
       newState.currentMPC = currentMPC;
 
       set({ state: newState, isGameLoading: false });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error loading game:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load game data.";
       set({
         isGameLoading: false,
-        error: err.response?.data?.message || "Failed to load game data.",
+        error: errorMessage,
       });
     }
   },
@@ -195,6 +195,46 @@ export const useGameStore = create<GameContextType>((set, get) => ({
     });
   },
 
+  buyMultipleBuildings: (buildingId: string, count: number) => {
+    set((store) => {
+      const state = store.state;
+      const building = state.staticBuildings.find((b) => b.id === buildingId);
+
+      if (!building || count <= 0) return store;
+
+      const currentCount = state.buildings[buildingId] || 0;
+      const totalCost = calculateMultipleCost(
+        building.baseCost,
+        currentCount,
+        count
+      );
+
+      if (state.mana >= totalCost) {
+        const newBuildings = {
+          ...state.buildings,
+          [buildingId]: currentCount + count,
+        };
+
+        let newState: GameState = {
+          ...state,
+          mana: state.mana - totalCost,
+          buildings: newBuildings,
+        };
+
+        const production = calculateProduction(newState);
+
+        return {
+          state: {
+            ...newState,
+            ...production,
+          },
+        };
+      }
+
+      return store;
+    });
+  },
+
   buyUpgrade: (upgradeId: string) => {
     set((store) => {
       const state = store.state;
@@ -226,7 +266,7 @@ export const useGameStore = create<GameContextType>((set, get) => ({
     });
   },
 
-  saveGame: async () => {
+  saveGame: async (token: string) => {
     const state = get().state;
 
     const {
@@ -238,14 +278,21 @@ export const useGameStore = create<GameContextType>((set, get) => ({
       ...stateToSave
     } = state;
 
+    // Suppress unused variable warnings
+    void staticBuildings;
+    void staticUpgrades;
+    void staticAchievements;
+    void currentMPS;
+    void currentMPC;
+
     const finalStateToSave = { ...stateToSave, lastUpdate: Date.now() };
 
     try {
-      await gameService.saveGame(finalStateToSave);
+      await gameService.saveGame(finalStateToSave, token);
       set((store) => ({
         state: { ...store.state, lastUpdate: finalStateToSave.lastUpdate },
       }));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Auto-save failed:", err);
     }
   },

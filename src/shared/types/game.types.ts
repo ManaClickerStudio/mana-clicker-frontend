@@ -1,3 +1,6 @@
+// ============ Static Game Data Types ============
+// These types are shared across the application and used by the API layer
+
 // Auth Types
 export interface UserData {
   id: string;
@@ -54,7 +57,7 @@ export interface Achievement {
   targetId?: string;
 }
 
-// Game State Types
+// ============ Game State Types ============
 export interface UserBuildings {
   [buildingId: string]: number;
 }
@@ -74,24 +77,5 @@ export interface GameState {
   lastUpdate: number;
 }
 
-// Auth Context Types
-export interface AuthContextType {
-  user: UserData | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<AuthResponse>;
-  register: (username: string, password: string) => Promise<AuthResponse>;
-  logout: () => void;
-}
-
-export interface GameContextType {
-  state: GameState;
-  isGameLoading: boolean;
-  error: string | null;
-  clickMana: () => void;
-  buyBuilding: (buildingId: string) => void;
-  buyUpgrade: (upgradeId: string) => void;
-  loadGame: () => Promise<void>;
-  incrementMana: (amount: number) => void;
-  saveGame: () => Promise<void>;
-}
+// ============ Purchase Types ============
+export type PurchaseMultiplier = 1 | 10 | 25 | 50 | "max";

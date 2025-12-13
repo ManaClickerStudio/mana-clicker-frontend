@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AuthResponse } from "../types/game";
+import type { AuthResponse } from "@/entities/game";
 
 const API_URL = "http://localhost:4000/api/auth/";
 

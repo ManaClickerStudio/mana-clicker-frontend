@@ -1,11 +1,5 @@
 import axios from "axios";
-import {
-  GameState,
-  Building,
-  Upgrade,
-  Achievement,
-  AuthResponse,
-} from "../types/game";
+import type { GameState, Building, Upgrade, Achievement } from "@/shared/types";
 
 const API_URL = "http://localhost:4000/api/";
 
@@ -14,27 +8,28 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
-// Interceptor - Add JWT Token to Requests
-api.interceptors.request.use(
-  (config) => {
-    const userJSON = localStorage.getItem("user");
-    if (userJSON) {
-      const user: AuthResponse = JSON.parse(userJSON);
-      config.headers.Authorization = `Bearer ${user.token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Helper to get headers with token
+const getConfig = (token?: string) => {
+  if (token) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
   }
-);
+  return {};
+};
 
-// Get Static Data
-const getStaticData = async (): Promise<{
+export interface StaticGameData {
   buildings: Building[];
   upgrades: Upgrade[];
   achievements: Achievement[];
-}> => {
+}
+
+/**
+ * Fetches static game data (buildings, upgrades, achievements)
+ */
+export const getStaticData = async (): Promise<StaticGameData> => {
   const [buildingsRes, upgradesRes, achievementsRes] = await Promise.all([
     axios.get<Building[]>(API_URL + "data/buildings"),
     axios.get<Upgrade[]>(API_URL + "data/upgrades"),
@@ -48,13 +43,18 @@ const getStaticData = async (): Promise<{
   };
 };
 
-const loadGame = async (): Promise<GameState> => {
-  const response = await api.get<GameState>("game/load");
+/**
+ * Loads user's game state from the server
+ */
+export const loadGame = async (token: string): Promise<GameState> => {
+  const response = await api.get<GameState>("game/load", getConfig(token));
   return response.data;
 };
 
-// Save Game
-const saveGame = async (
+/**
+ * Saves user's game state to the server
+ */
+export const saveGame = async (
   gameStateToSave: Omit<
     GameState,
     | "staticBuildings"
@@ -62,9 +62,10 @@ const saveGame = async (
     | "staticAchievements"
     | "currentMPS"
     | "currentMPC"
-  >
+  >,
+  token: string
 ): Promise<void> => {
-  await api.post("game/save", gameStateToSave);
+  await api.post("game/save", gameStateToSave, getConfig(token));
 };
 
 const gameService = {
