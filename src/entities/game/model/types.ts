@@ -1,4 +1,3 @@
-// Re-export shared types
 export type {
   UpgradeType,
   AchievementCondition,
@@ -10,7 +9,7 @@ export type {
   PurchaseMultiplier,
 } from "@/shared/types";
 
-// ============ Auth Types ============
+// Typy autentykacji
 export interface UserData {
   id: string;
   username: string;
@@ -27,7 +26,6 @@ export interface AuthVerifyResponse {
   username: string;
 }
 
-// ============ Auth Context Types ============
 export interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
@@ -37,7 +35,7 @@ export interface AuthContextType {
   logout: () => void;
 }
 
-// ============ Game Context Types ============
+// Typy kontekstu gry
 import type { GameState, PurchaseMultiplier } from "@/shared/types";
 
 export interface GameContextType {

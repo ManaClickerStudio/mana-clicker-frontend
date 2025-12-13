@@ -3,12 +3,10 @@ import type { GameState, Building, Upgrade, Achievement } from "@/shared/types";
 
 const API_URL = "http://localhost:4000/api/";
 
-// Create Axios Instance
 const api = axios.create({
   baseURL: API_URL,
 });
 
-// Helper to get headers with token
 const getConfig = (token?: string) => {
   if (token) {
     return {
@@ -26,9 +24,7 @@ export interface StaticGameData {
   achievements: Achievement[];
 }
 
-/**
- * Fetches static game data (buildings, upgrades, achievements)
- */
+// Pobiera statyczne dane gry (budynki, ulepszenia, osiągnięcia)
 export const getStaticData = async (): Promise<StaticGameData> => {
   const [buildingsRes, upgradesRes, achievementsRes] = await Promise.all([
     axios.get<Building[]>(API_URL + "data/buildings"),
@@ -43,17 +39,13 @@ export const getStaticData = async (): Promise<StaticGameData> => {
   };
 };
 
-/**
- * Loads user's game state from the server
- */
+// Wczytuje stan gry użytkownika z serwera
 export const loadGame = async (token: string): Promise<GameState> => {
   const response = await api.get<GameState>("game/load", getConfig(token));
   return response.data;
 };
 
-/**
- * Saves user's game state to the server
- */
+// Zapisuje stan gry użytkownika na serwerze
 export const saveGame = async (
   gameStateToSave: Omit<
     GameState,

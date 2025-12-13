@@ -5,7 +5,7 @@ import { ManaCrystal } from "@/features/mana-click";
 import { BuildingList } from "@/features/building-purchase";
 import { UpgradeList } from "@/features/upgrade-purchase";
 import { LoadingScreen } from "@/shared/ui";
-import { formatNumber } from "@/shared/lib";
+import { formatNumber, formatMana } from "@/shared/lib";
 import {
   GameContainer,
   ContentWrapper,
@@ -65,7 +65,7 @@ export const GamePage: React.FC = () => {
         if (token) {
           saveGame(token);
         }
-      }, 60000);
+      }, 10000);
 
       return () => clearInterval(saveInterval);
     }
@@ -95,11 +95,10 @@ export const GamePage: React.FC = () => {
   return (
     <GameContainer>
       <ContentWrapper>
-        {/* Header */}
         <Header>
           <LogoSection>
             <Logo>⚡ Mana Clicker</Logo>
-            <AutoSaveIndicator>Auto-save every 1 min</AutoSaveIndicator>
+            <AutoSaveIndicator>Auto-save every 10s</AutoSaveIndicator>
           </LogoSection>
 
           <StatsBar>
@@ -132,15 +131,12 @@ export const GamePage: React.FC = () => {
           </ProfileSection>
         </Header>
 
-        {/* Main Game Area */}
         <MainLayout>
-          {/* Left Panel - Buildings */}
           <BuildingList />
 
-          {/* Center - Crystal & Mana */}
           <CenterSection>
             <ManaDisplay>
-              <ManaValue>{formatNumber(mana)}</ManaValue>
+              <ManaValue>{formatMana(mana)}</ManaValue>
               <ManaLabel>Mana</ManaLabel>
             </ManaDisplay>
 
@@ -162,7 +158,6 @@ export const GamePage: React.FC = () => {
             </QuickStats>
           </CenterSection>
 
-          {/* Right Panel - Upgrades */}
           <UpgradeList />
         </MainLayout>
       </ContentWrapper>

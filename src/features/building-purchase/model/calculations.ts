@@ -1,9 +1,6 @@
-// Configuration
-const COST_MULTIPLIER = 1.18; // 18% cost multiplier for buildings
+const COST_MULTIPLIER = 1.18;
 
-/**
- * Calculate the cost of a building based on its base cost and current count
- */
+// Oblicza koszt budynku na podstawie kosztu bazowego i ilości posiadanych
 export const calculateBuildingCost = (
   baseCost: number,
   currentCount: number
@@ -11,9 +8,7 @@ export const calculateBuildingCost = (
   return Math.ceil(baseCost * Math.pow(COST_MULTIPLIER, currentCount));
 };
 
-/**
- * Calculate total cost for buying N buildings
- */
+// Oblicza łączny koszt zakupu N budynków
 export const calculateMultipleCost = (
   baseCost: number,
   currentCount: number,
@@ -26,9 +21,7 @@ export const calculateMultipleCost = (
   return totalCost;
 };
 
-/**
- * Calculate max buildings affordable with current mana
- */
+// Oblicza maksymalną ilość budynków możliwych do kupienia za obecną manę
 export const calculateMaxAffordable = (
   baseCost: number,
   currentCount: number,

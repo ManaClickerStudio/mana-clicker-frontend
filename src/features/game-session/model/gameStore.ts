@@ -12,7 +12,7 @@ import {
   calculateMultipleCost,
 } from "@/features/building-purchase";
 
-// Initial Game State
+// Początkowy stan gry
 const INITIAL_GAME_STATE: Omit<
   GameState,
   "staticBuildings" | "staticUpgrades" | "staticAchievements"
@@ -28,7 +28,7 @@ const INITIAL_GAME_STATE: Omit<
   lastUpdate: Date.now(),
 };
 
-// Calculations for MPS/MPC
+// Oblicza produkcję MPS i MPC na podstawie budynków i ulepszeń
 const calculateProduction = (
   state: GameState
 ): { currentMPS: number; currentMPC: number } => {
@@ -93,7 +93,7 @@ const calculateProduction = (
   };
 };
 
-// Game Store Definition
+// Główny store gry (Zustand)
 export const useGameStore = create<GameContextType>((set, get) => ({
   state: {
     ...INITIAL_GAME_STATE,
@@ -278,7 +278,6 @@ export const useGameStore = create<GameContextType>((set, get) => ({
       ...stateToSave
     } = state;
 
-    // Suppress unused variable warnings
     void staticBuildings;
     void staticUpgrades;
     void staticAchievements;

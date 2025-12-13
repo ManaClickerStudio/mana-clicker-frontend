@@ -1,7 +1,4 @@
-// ============ Static Game Data Types ============
-// These types are shared across the application and used by the API layer
-
-// Auth Types
+// Typy autentykacji
 export interface UserData {
   id: string;
   username: string;
@@ -13,7 +10,7 @@ export interface AuthResponse {
   message?: string;
 }
 
-// Static Game Data (JSON Files)
+// Typy statycznych danych gry
 export type UpgradeType = "click" | "click_mps" | "global_mps" | "building";
 
 export type AchievementCondition =
@@ -57,7 +54,7 @@ export interface Achievement {
   targetId?: string;
 }
 
-// ============ Game State Types ============
+// Typy stanu gry
 export interface UserBuildings {
   [buildingId: string]: number;
 }
@@ -77,5 +74,5 @@ export interface GameState {
   lastUpdate: number;
 }
 
-// ============ Purchase Types ============
+// Typy zakupów
 export type PurchaseMultiplier = 1 | 10 | 25 | 50 | "max";

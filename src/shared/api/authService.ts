@@ -3,7 +3,7 @@ import type { AuthResponse } from "@/entities/game";
 
 const API_URL = "http://localhost:4000/api/auth/";
 
-// Register Function
+// Rejestracja użytkownika
 const register = async (
   username: string,
   password: string
@@ -19,7 +19,7 @@ const register = async (
   return response.data;
 };
 
-// Login Function
+// Logowanie użytkownika
 const login = async (
   username: string,
   password: string
@@ -35,7 +35,7 @@ const login = async (
   return response.data;
 };
 
-// Logout Function
+// Wylogowanie użytkownika
 const logout = (): void => {
   localStorage.removeItem("user");
 };
