@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { useGameStore } from "@/features/game-session";
-import type { SurgeType } from "@/shared/types";
+import type { SurgeType, ActiveBoost, StaticSurgeType } from "@/shared/types";
 import {
   BoostsContainer,
   BoostPill,
@@ -35,23 +35,58 @@ const formatTimeRemaining = (ms: number): string => {
   return `${seconds}s`;
 };
 
+// Separate component for timer - only this re-renders every second
+interface BoostPillTimerProps {
+  boost: ActiveBoost;
+  surgeData: StaticSurgeType | undefined;
+}
+
+const BoostPillTimer = memo<BoostPillTimerProps>(({ boost, surgeData }) => {
+  const [timeRemaining, setTimeRemaining] = useState(
+    boost.expiresAt - Date.now()
+  );
+  const isExpiring = timeRemaining < 10000;
+  const color = BOOST_COLORS[boost.type];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const remaining = boost.expiresAt - Date.now();
+      setTimeRemaining(remaining);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [boost.expiresAt]);
+
+  // Don't render if expired
+  if (timeRemaining <= 0) return null;
+
+  return (
+    <BoostPill $color={color} $isExpiring={isExpiring}>
+      <BoostIcon>{BOOST_ICONS[boost.type]}</BoostIcon>
+      <BoostInfo>
+        <BoostName>
+          {surgeData?.name || boost.type}
+          {boost.target && ` (${boost.target})`}
+        </BoostName>
+        <BoostTimer>
+          x{boost.multiplier} • {formatTimeRemaining(timeRemaining)}
+        </BoostTimer>
+      </BoostInfo>
+    </BoostPill>
+  );
+});
+
+BoostPillTimer.displayName = "BoostPillTimer";
+
 export const ActiveBoostsBar: React.FC = () => {
   const activeBoosts = useGameStore((s) => s.state.activeBoosts);
   const staticSurgeTypes = useGameStore((s) => s.state.staticSurgeTypes);
-  const [now, setNow] = useState(Date.now());
 
-  // Update timer every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Filter out boosts that are definitely expired (with some buffer)
+  const potentiallyValidBoosts = activeBoosts.filter(
+    (boost) => boost.expiresAt > Date.now() - 2000
+  );
 
-  // Filter out expired boosts
-  const validBoosts = activeBoosts.filter((boost) => boost.expiresAt > now);
-
-  if (validBoosts.length === 0) {
+  if (potentiallyValidBoosts.length === 0) {
     return (
       <BoostsContainer>
         <NoBoostsText>No active boosts</NoBoostsText>
@@ -61,29 +96,14 @@ export const ActiveBoostsBar: React.FC = () => {
 
   return (
     <BoostsContainer>
-      {validBoosts.map((boost, index) => {
+      {potentiallyValidBoosts.map((boost, index) => {
         const surgeData = staticSurgeTypes?.find((s) => s.id === boost.type);
-        const timeRemaining = boost.expiresAt - now;
-        const isExpiring = timeRemaining < 10000;
-        const color = BOOST_COLORS[boost.type];
-
         return (
-          <BoostPill
-            key={`${boost.type}-${index}`}
-            $color={color}
-            $isExpiring={isExpiring}
-          >
-            <BoostIcon>{BOOST_ICONS[boost.type]}</BoostIcon>
-            <BoostInfo>
-              <BoostName>
-                {surgeData?.name || boost.type}
-                {boost.target && ` (${boost.target})`}
-              </BoostName>
-              <BoostTimer>
-                x{boost.multiplier} • {formatTimeRemaining(timeRemaining)}
-              </BoostTimer>
-            </BoostInfo>
-          </BoostPill>
+          <BoostPillTimer
+            key={`${boost.type}-${boost.expiresAt}-${index}`}
+            boost={boost}
+            surgeData={surgeData}
+          />
         );
       })}
     </BoostsContainer>

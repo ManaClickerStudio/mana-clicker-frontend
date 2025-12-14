@@ -12,6 +12,7 @@ import {
   EssenceLabel,
   EssenceValue,
   RequirementText,
+  ProgressionInfo,
   AscendButton,
   WarningText,
   StatsGrid,
@@ -21,6 +22,21 @@ import {
 } from "./AscensionPanel.styles";
 
 const MINIMUM_MANA_REQUIRED = 1000000;
+
+// Calculates mana needed to gain next essence point
+const calculateManaForNextEssence = (currentTotalMana: number): number => {
+  if (currentTotalMana < MINIMUM_MANA_REQUIRED) return MINIMUM_MANA_REQUIRED;
+
+  // Formula: essence = floor(log10(mana)^2.5)
+  // Inverse: mana = 10^(essence^(1/2.5))
+  const currentEssence = Math.floor(
+    Math.pow(Math.log10(currentTotalMana), 2.5)
+  );
+  const nextEssence = currentEssence + 1;
+  const manaForNext = Math.ceil(Math.pow(10, Math.pow(nextEssence, 1 / 2.5)));
+
+  return manaForNext;
+};
 
 export const AscensionPanel: React.FC = () => {
   const { getToken } = useAuth();
@@ -39,6 +55,8 @@ export const AscensionPanel: React.FC = () => {
 
   const essenceToGain = getEssencePreview();
   const canAscend = totalManaEarned >= MINIMUM_MANA_REQUIRED;
+  const manaForNextEssence = calculateManaForNextEssence(totalManaEarned);
+  const manaNeededForNext = manaForNextEssence - totalManaEarned;
 
   const totalBuildings = Object.values(buildings).reduce(
     (sum, count) => sum + count,
@@ -81,8 +99,16 @@ export const AscensionPanel: React.FC = () => {
           <RequirementText $met={canAscend}>
             {canAscend
               ? "✓ Requirements met!"
-              : `Requires ${formatNumber(MINIMUM_MANA_REQUIRED)} total mana (have ${formatNumber(totalManaEarned)})`}
+              : `Requires ${formatNumber(
+                  MINIMUM_MANA_REQUIRED
+                )} total mana (have ${formatNumber(totalManaEarned)})`}
           </RequirementText>
+          {canAscend && manaNeededForNext > 0 && (
+            <ProgressionInfo>
+              Next +1 essence at {formatNumber(manaForNextEssence)} mana (
+              {formatNumber(manaNeededForNext)} more)
+            </ProgressionInfo>
+          )}
         </EssencePreview>
 
         <AscendButton
@@ -154,4 +180,3 @@ export const AscensionPanel: React.FC = () => {
     </>
   );
 };
-

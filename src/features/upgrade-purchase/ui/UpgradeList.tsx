@@ -9,48 +9,43 @@ import {
   EmptyState,
 } from "./UpgradeList.styles";
 
-type UpgradeStatus = "available" | "locked" | "purchased";
-
-const getUpgradeStatus = (
+// Sort upgrades by: 1) not purchased first, 2) lower cost first
+// This is more stable than sorting by affordability (which changes every click)
+const getSortKey = (
   upgrade: Upgrade,
-  mana: number,
   buildings: Record<string, number>,
   purchasedUpgrades: string[]
-): UpgradeStatus => {
-  if (purchasedUpgrades.includes(upgrade.id)) return "purchased";
+): number => {
+  const isPurchased = purchasedUpgrades.includes(upgrade.id);
+  if (isPurchased) return Number.MAX_SAFE_INTEGER;
 
+  // Check if requirements are met (building count based - changes less often than mana)
   const requiredBuildingCount = buildings[upgrade.requiredBuilding || ""] ?? 0;
   const isRequirementMet =
     !upgrade.requiredBuilding || requiredBuildingCount >= upgrade.requiredCount;
-  const canAfford = mana >= upgrade.cost;
 
-  if (canAfford && isRequirementMet) return "available";
-  return "locked";
+  // Prioritize: requirements met first, then by cost
+  return isRequirementMet ? upgrade.cost : upgrade.cost + 1e12;
 };
 
 export const UpgradeList: React.FC = () => {
   const upgradeDefinitions = useGameStore(
     (state) => state.state.staticUpgrades
   );
-  const mana = useGameStore((state) => state.state.mana);
   const buildings = useGameStore((state) => state.state.buildings);
   const purchasedUpgrades = useGameStore((state) => state.state.upgrades);
 
+  // Sort only when buildings or purchased upgrades change (not on every mana change)
+  // Individual UpgradeItem components handle their own "can afford" styling
   const sortedUpgrades = useMemo(() => {
     if (!upgradeDefinitions || upgradeDefinitions.length === 0) return [];
 
-    const statusPriority: Record<UpgradeStatus, number> = {
-      available: 0,
-      locked: 1,
-      purchased: 2,
-    };
-
     return [...upgradeDefinitions].sort((a, b) => {
-      const statusA = getUpgradeStatus(a, mana, buildings, purchasedUpgrades);
-      const statusB = getUpgradeStatus(b, mana, buildings, purchasedUpgrades);
-      return statusPriority[statusA] - statusPriority[statusB];
+      const keyA = getSortKey(a, buildings, purchasedUpgrades);
+      const keyB = getSortKey(b, buildings, purchasedUpgrades);
+      return keyA - keyB;
     });
-  }, [upgradeDefinitions, mana, buildings, purchasedUpgrades]);
+  }, [upgradeDefinitions, buildings, purchasedUpgrades]);
 
   return (
     <SidePanel>
@@ -69,4 +64,3 @@ export const UpgradeList: React.FC = () => {
     </SidePanel>
   );
 };
-

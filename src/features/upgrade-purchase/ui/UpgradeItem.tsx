@@ -18,17 +18,18 @@ interface UpgradeItemProps {
   upgrade: Upgrade;
 }
 
-export const UpgradeItem: React.FC<UpgradeItemProps> = ({ upgrade }) => {
+const UpgradeItemComponent: React.FC<UpgradeItemProps> = ({ upgrade }) => {
   const mana = useGameStore((s) => s.state.mana);
-  const upgrades = useGameStore((s) => s.state.upgrades);
-  const buildings = useGameStore((s) => s.state.buildings);
+  // Select only the specific values needed to avoid re-renders
+  const isPurchased = useGameStore(
+    (s) => s.state.upgrades?.includes(upgrade.id) ?? false
+  );
+  const requiredBuildingCount = useGameStore(
+    (s) => s.state.buildings?.[upgrade.requiredBuilding || ""] ?? 0
+  );
   const buyUpgrade = useGameStore((s) => s.buyUpgrade);
 
-  const isPurchased = upgrades?.includes(upgrade.id) ?? false;
   const canAfford = mana >= upgrade.cost;
-
-  const requiredBuildingCount =
-    buildings?.[upgrade.requiredBuilding || ""] ?? 0;
   const isRequirementMet =
     !upgrade.requiredBuilding || requiredBuildingCount >= upgrade.requiredCount;
 
@@ -80,5 +81,4 @@ export const UpgradeItem: React.FC<UpgradeItemProps> = ({ upgrade }) => {
   );
 };
 
-export default React.memo(UpgradeItem);
-
+export const UpgradeItem = React.memo(UpgradeItemComponent);

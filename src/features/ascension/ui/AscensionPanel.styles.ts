@@ -11,7 +11,11 @@ const pulse = keyframes`
 `;
 
 export const PanelContainer = styled.div`
-  background: linear-gradient(145deg, rgba(20, 10, 40, 0.95), rgba(40, 20, 60, 0.9));
+  background: linear-gradient(
+    145deg,
+    rgba(20, 10, 40, 0.95),
+    rgba(40, 20, 60, 0.9)
+  );
   border: 1px solid rgba(138, 43, 226, 0.4);
   border-radius: 12px;
   padding: 20px;
@@ -38,7 +42,11 @@ export const PanelIcon = styled.span`
 `;
 
 export const EssencePreview = styled.div`
-  background: linear-gradient(135deg, rgba(75, 0, 130, 0.3), rgba(138, 43, 226, 0.2));
+  background: linear-gradient(
+    135deg,
+    rgba(75, 0, 130, 0.3),
+    rgba(138, 43, 226, 0.2)
+  );
   border: 1px solid rgba(186, 85, 211, 0.3);
   border-radius: 8px;
   padding: 16px;
@@ -55,10 +63,11 @@ export const EssenceValue = styled.div<{ $canAscend: boolean }>`
   font-family: "Orbitron", monospace;
   font-size: 2rem;
   font-weight: bold;
-  color: ${({ $canAscend }) => ($canAscend ? "#e0b0ff" : "rgba(180, 160, 200, 0.5)")};
+  color: ${({ $canAscend }) =>
+    $canAscend ? "#e0b0ff" : "rgba(180, 160, 200, 0.5)"};
   text-shadow: ${({ $canAscend }) =>
     $canAscend ? "0 0 20px rgba(186, 85, 211, 0.8)" : "none"};
-  
+
   ${({ $canAscend }) =>
     $canAscend &&
     css`
@@ -72,8 +81,16 @@ export const EssenceValue = styled.div<{ $canAscend: boolean }>`
 
 export const RequirementText = styled.div<{ $met: boolean }>`
   font-size: 0.8rem;
-  color: ${({ $met }) => ($met ? "rgba(144, 238, 144, 0.9)" : "rgba(255, 100, 100, 0.9)")};
+  color: ${({ $met }) =>
+    $met ? "rgba(144, 238, 144, 0.9)" : "rgba(255, 100, 100, 0.9)"};
   margin-top: 8px;
+`;
+
+export const ProgressionInfo = styled.div`
+  font-size: 0.75rem;
+  color: rgba(180, 200, 255, 0.8);
+  margin-top: 6px;
+  font-style: italic;
 `;
 
 export const AscendButton = styled.button<{ $canAscend: boolean }>`
@@ -88,22 +105,22 @@ export const AscendButton = styled.button<{ $canAscend: boolean }>`
   border-radius: 8px;
   cursor: ${({ $canAscend }) => ($canAscend ? "pointer" : "not-allowed")};
   transition: all 0.3s ease;
-  
+
   ${({ $canAscend }) =>
     $canAscend
       ? css`
           background: linear-gradient(135deg, #8b00ff, #da70d6);
           color: white;
           box-shadow: 0 4px 20px rgba(138, 43, 226, 0.5),
-                      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
           animation: ${pulse} 2s ease-in-out infinite;
-          
+
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 30px rgba(138, 43, 226, 0.7),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
           }
-          
+
           &:active {
             transform: translateY(0);
           }
@@ -147,4 +164,3 @@ export const StatValue = styled.div`
   font-size: 1rem;
   color: #c9a0dc;
 `;
-

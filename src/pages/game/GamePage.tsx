@@ -1,9 +1,21 @@
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { useAuth, UserButton } from "@clerk/clerk-react";
 import { useGameStore, useGameLoop } from "@/features/game-session";
 import { ManaCrystal } from "@/features/mana-click";
 import { BuildingList } from "@/features/building-purchase";
 import { UpgradeList } from "@/features/upgrade-purchase";
+import { AscensionPanel, RuneShop, EssenceDisplay } from "@/features/ascension";
+import {
+  AutoClickerPanel,
+  AutoBuyerPanel,
+  useAutomation,
+} from "@/features/automation";
+import {
+  ManaSurge,
+  ActiveBoostsBar,
+  useSurgeSpawner,
+} from "@/features/mana-surge";
+import { TalentButton, TalentModal } from "@/features/talents";
 import { LoadingScreen } from "@/shared/ui";
 import { formatNumber, formatMana } from "@/shared/lib";
 import {
@@ -18,6 +30,8 @@ import {
   ProfileSection,
   LogoutButton,
   MainLayout,
+  LeftPanel,
+  AutomationPanels,
   CenterSection,
   ManaDisplay,
   ManaValue,
@@ -25,10 +39,19 @@ import {
   CrystalWrapper,
   QuickStats,
   QuickStat,
+  BoostsWrapper,
+  RightPanel,
+  TabsHeader,
+  TabButton,
+  TabContent,
 } from "./GamePage.styles";
+
+type RightTab = "upgrades" | "ascension";
 
 export const GamePage: React.FC = () => {
   const { getToken, signOut, isSignedIn } = useAuth();
+  const [activeTab, setActiveTab] = useState<RightTab>("upgrades");
+  const [isTalentModalOpen, setIsTalentModalOpen] = useState(false);
 
   const loadGame = useGameStore((s) => s.loadGame);
   const isGameLoading = useGameStore((s) => s.isGameLoading);
@@ -38,12 +61,22 @@ export const GamePage: React.FC = () => {
   const currentMPS = useGameStore((s) => s.state.currentMPS);
   const currentMPC = useGameStore((s) => s.state.currentMPC);
   const totalManaEarned = useGameStore((s) => s.state.totalManaEarned);
+  const ascensionCount = useGameStore((s) => s.state.ascensionCount);
 
   const hasLoadedRef = useRef(false);
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
 
-  useGameLoop(!!isSignedIn && !isGameLoading);
+  const isGameActive = !!isSignedIn && !isGameLoading && !error;
+
+  // Game loop for passive mana generation
+  useGameLoop(isGameActive);
+
+  // Surge spawner for mana surges
+  useSurgeSpawner(isGameActive);
+
+  // Automation hooks
+  useAutomation(isGameActive);
 
   useEffect(() => {
     const loadData = async () => {
@@ -59,17 +92,17 @@ export const GamePage: React.FC = () => {
   }, [isSignedIn, loadGame]);
 
   useEffect(() => {
-    if (isSignedIn && !isGameLoading && !error) {
+    if (isGameActive) {
       const saveInterval = setInterval(async () => {
         const token = await getTokenRef.current();
         if (token) {
           saveGame(token);
         }
-      }, 10000);
+      }, 10000); // Auto-save every 10 seconds
 
       return () => clearInterval(saveInterval);
     }
-  }, [isSignedIn, isGameLoading, error, saveGame]);
+  }, [isGameActive, saveGame]);
 
   const handleLogout = useCallback(async () => {
     const token = await getTokenRef.current();
@@ -114,9 +147,14 @@ export const GamePage: React.FC = () => {
               <span>Per Click</span>
               <span>{formatNumber(currentMPC)}</span>
             </StatItem>
+            <StatItem>
+              <span>Ascensions</span>
+              <span>{ascensionCount}</span>
+            </StatItem>
           </StatsBar>
 
           <ProfileSection>
+            <EssenceDisplay />
             <UserButton
               appearance={{
                 elements: {
@@ -132,8 +170,16 @@ export const GamePage: React.FC = () => {
         </Header>
 
         <MainLayout>
-          <BuildingList />
+          {/* Left Panel - Buildings + Automation */}
+          <LeftPanel>
+            <BuildingList />
+            <AutomationPanels>
+              <AutoClickerPanel />
+              <AutoBuyerPanel />
+            </AutomationPanels>
+          </LeftPanel>
 
+          {/* Center Section - Crystal + Stats */}
           <CenterSection>
             <ManaDisplay>
               <ManaValue>{formatMana(mana)}</ManaValue>
@@ -156,11 +202,50 @@ export const GamePage: React.FC = () => {
                 <span className="unit">MPC</span>
               </QuickStat>
             </QuickStats>
+
+            <BoostsWrapper>
+              <ActiveBoostsBar />
+            </BoostsWrapper>
           </CenterSection>
 
-          <UpgradeList />
+          {/* Right Panel - Upgrades / Ascension Tabs */}
+          <RightPanel>
+            <TabsHeader>
+              <TabButton
+                $active={activeTab === "upgrades"}
+                onClick={() => setActiveTab("upgrades")}
+              >
+                Upgrades
+              </TabButton>
+              <TabButton
+                $active={activeTab === "ascension"}
+                onClick={() => setActiveTab("ascension")}
+              >
+                Ascension
+              </TabButton>
+            </TabsHeader>
+            <TabContent>
+              {activeTab === "upgrades" && <UpgradeList />}
+              {activeTab === "ascension" && (
+                <>
+                  <AscensionPanel />
+                  <TalentButton onClick={() => setIsTalentModalOpen(true)} />
+                  <RuneShop />
+                </>
+              )}
+            </TabContent>
+          </RightPanel>
         </MainLayout>
       </ContentWrapper>
+
+      {/* Mana Surge Popup */}
+      <ManaSurge />
+
+      {/* Talent Modal */}
+      <TalentModal
+        isOpen={isTalentModalOpen}
+        onClose={() => setIsTalentModalOpen(false)}
+      />
     </GameContainer>
   );
 };

@@ -48,7 +48,6 @@ export const ContentWrapper = styled.div`
   flex-direction: column;
 `;
 
-// ============ HEADER ============
 export const Header = styled.header`
   display: flex;
   align-items: center;
@@ -151,18 +150,16 @@ export const LogoutButton = styled.button`
   }
 `;
 
-// ============ MAIN LAYOUT ============
 export const MainLayout = styled.main`
   flex: 1;
   display: grid;
-  grid-template-columns: 320px 1fr 320px;
+  grid-template-columns: 380px 1fr 380px;
   gap: 1rem;
   padding: 1rem;
   min-height: 0;
   color: white;
 `;
 
-// ============ CENTER SECTION ============
 export const CenterSection = styled.section`
   display: flex;
   flex-direction: column;
@@ -246,4 +243,83 @@ export const QuickStat = styled.div`
     font-size: 0.875rem;
     color: #94a3b8;
   }
+`;
+
+export const LeftPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+`;
+
+export const AutomationPanels = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  flex-shrink: 0;
+`;
+
+export const RightPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 1rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  overflow: hidden;
+`;
+
+export const TabsHeader = styled.div`
+  display: flex;
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  flex-shrink: 0;
+`;
+
+export const TabButton = styled.button<{ $active: boolean }>`
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: ${(props) =>
+    props.$active
+      ? "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%)"
+      : "transparent"};
+  color: ${(props) => (props.$active ? "#e2e8f0" : "#94a3b8")};
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid
+    ${(props) => (props.$active ? "#8b5cf6" : "transparent")};
+
+  &:hover {
+    background: ${(props) =>
+      props.$active
+        ? "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%)"
+        : "rgba(139, 92, 246, 0.1)"};
+    color: #e2e8f0;
+  }
+`;
+
+export const TabContent = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 3px;
+  }
+`;
+
+export const BoostsWrapper = styled.div`
+  margin-top: 1rem;
 `;

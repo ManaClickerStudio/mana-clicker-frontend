@@ -8,6 +8,8 @@ export const SidePanel = styled.aside`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex: 1;
+  min-height: 0;
 `;
 
 export const PanelHeader = styled.div`
@@ -85,4 +87,3 @@ export const EmptyState = styled.p`
   padding: 2rem 1rem;
   font-size: 0.875rem;
 `;
-

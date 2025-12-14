@@ -1,19 +1,18 @@
 import { useEffect, useRef } from "react";
 import { useGameStore } from "./gameStore";
 
-// Hook odpowiedzialny za główną pętlę gry - dodaje manę co sekundę
+// Main game loop - adds passive mana every second based on MPS
 export const useGameLoop = (isActive: boolean) => {
   const incrementMana = useGameStore((s) => s.incrementMana);
   const currentMPSRef = useRef(0);
 
-  // Synchronizacja MPS bez powodowania re-renderów
+  // Sync MPS without causing re-renders
   useEffect(() => {
     return useGameStore.subscribe((state) => {
       currentMPSRef.current = state.state.currentMPS;
     });
   }, []);
 
-  // Pętla dodająca manę
   useEffect(() => {
     if (isActive) {
       const interval = setInterval(() => {
@@ -27,4 +26,3 @@ export const useGameLoop = (isActive: boolean) => {
     }
   }, [isActive, incrementMana]);
 };
-
