@@ -38,15 +38,16 @@ const getBuildingIcon = (id: string): string => {
   return icons[id] || "✨";
 };
 
-export const BuildingItem: React.FC<BuildingItemProps> = ({ building }) => {
+const BuildingItemComponent: React.FC<BuildingItemProps> = ({ building }) => {
   const mana = useGameStore((store) => store.state.mana);
-  const buildings = useGameStore((store) => store.state.buildings);
+  // Select only the count for this specific building to avoid re-renders when other buildings change
+  const count = useGameStore(
+    (store) => store.state.buildings?.[building.id] ?? 0
+  );
   const buyMultipleBuildings = useGameStore(
     (store) => store.buyMultipleBuildings
   );
   const purchaseMultiplier = useGameStore((store) => store.purchaseMultiplier);
-
-  const count = buildings?.[building.id] ?? 0;
 
   const { purchaseCount, totalCost, canAfford } = useMemo(() => {
     if (purchaseMultiplier === "max") {
@@ -93,11 +94,12 @@ export const BuildingItem: React.FC<BuildingItemProps> = ({ building }) => {
       </Details>
       <PriceSection>
         {showQuantity && <QuantityBadge>x{purchaseCount}</QuantityBadge>}
-        <CostButton $canAfford={canAfford}>{formatNumber(totalCost)}</CostButton>
+        <CostButton $canAfford={canAfford}>
+          {formatNumber(totalCost)}
+        </CostButton>
       </PriceSection>
     </ItemContainer>
   );
 };
 
-export default React.memo(BuildingItem);
-
+export const BuildingItem = React.memo(BuildingItemComponent);

@@ -1,6 +1,6 @@
 const COST_MULTIPLIER = 1.18;
 
-// Oblicza koszt budynku na podstawie kosztu bazowego i ilości posiadanych
+// Calculates building cost based on base cost and current count
 export const calculateBuildingCost = (
   baseCost: number,
   currentCount: number
@@ -8,7 +8,7 @@ export const calculateBuildingCost = (
   return Math.ceil(baseCost * Math.pow(COST_MULTIPLIER, currentCount));
 };
 
-// Oblicza łączny koszt zakupu N budynków
+// Calculates total cost of purchasing N buildings
 export const calculateMultipleCost = (
   baseCost: number,
   currentCount: number,
@@ -21,7 +21,7 @@ export const calculateMultipleCost = (
   return totalCost;
 };
 
-// Oblicza maksymalną ilość budynków możliwych do kupienia za obecną manę
+// Calculates maximum affordable buildings with current mana
 export const calculateMaxAffordable = (
   baseCost: number,
   currentCount: number,
