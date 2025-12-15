@@ -16,7 +16,8 @@ import {
   useSurgeSpawner,
 } from "@/features/mana-surge";
 import { TalentButton, TalentModal } from "@/features/talents";
-import { LoadingScreen } from "@/shared/ui";
+import { LoadingScreen, MobileNavigation, MobilePanel } from "@/shared/ui";
+import type { MobileTab } from "@/shared/ui";
 import { formatNumber, formatMana } from "@/shared/lib";
 import {
   GameContainer,
@@ -44,6 +45,8 @@ import {
   TabsHeader,
   TabButton,
   TabContent,
+  MobileStatsBar,
+  MobileStatItem,
 } from "./GamePage.styles";
 
 type RightTab = "upgrades" | "ascension";
@@ -52,6 +55,7 @@ export const GamePage: React.FC = () => {
   const { getToken, signOut, isSignedIn } = useAuth();
   const [activeTab, setActiveTab] = useState<RightTab>("upgrades");
   const [isTalentModalOpen, setIsTalentModalOpen] = useState(false);
+  const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>(null);
 
   const loadGame = useGameStore((s) => s.loadGame);
   const isGameLoading = useGameStore((s) => s.isGameLoading);
@@ -113,6 +117,10 @@ export const GamePage: React.FC = () => {
     signOut();
   }, [signOut, saveGame]);
 
+  const handleCloseMobilePanel = useCallback(() => {
+    setActiveMobileTab(null);
+  }, []);
+
   if (!isSignedIn) {
     return <LoadingScreen message="Login to start the game!" />;
   }
@@ -170,7 +178,7 @@ export const GamePage: React.FC = () => {
         </Header>
 
         <MainLayout>
-          {/* Left Panel - Buildings + Automation */}
+          {/* Left Panel - Buildings + Automation (Desktop only) */}
           <LeftPanel>
             <BuildingList />
             <AutomationPanels>
@@ -185,6 +193,26 @@ export const GamePage: React.FC = () => {
               <ManaValue>{formatMana(mana)}</ManaValue>
               <ManaLabel>Mana</ManaLabel>
             </ManaDisplay>
+
+            {/* Mobile Stats Bar - visible only on mobile */}
+            <MobileStatsBar>
+              <MobileStatItem>
+                <span>Total</span>
+                <span>{formatNumber(totalManaEarned)}</span>
+              </MobileStatItem>
+              <MobileStatItem>
+                <span>MPS</span>
+                <span>{formatNumber(currentMPS)}</span>
+              </MobileStatItem>
+              <MobileStatItem>
+                <span>MPC</span>
+                <span>{formatNumber(currentMPC)}</span>
+              </MobileStatItem>
+              <MobileStatItem>
+                <span>Ascend</span>
+                <span>{ascensionCount}</span>
+              </MobileStatItem>
+            </MobileStatsBar>
 
             <CrystalWrapper>
               <ManaCrystal />
@@ -208,7 +236,7 @@ export const GamePage: React.FC = () => {
             </BoostsWrapper>
           </CenterSection>
 
-          {/* Right Panel - Upgrades / Ascension Tabs */}
+          {/* Right Panel - Upgrades / Ascension Tabs (Desktop only) */}
           <RightPanel>
             <TabsHeader>
               <TabButton
@@ -237,6 +265,56 @@ export const GamePage: React.FC = () => {
           </RightPanel>
         </MainLayout>
       </ContentWrapper>
+
+      {/* Mobile Navigation */}
+      <MobileNavigation
+        activeTab={activeMobileTab}
+        onTabChange={setActiveMobileTab}
+      />
+
+      {/* Mobile Panels */}
+      <MobilePanel
+        isOpen={activeMobileTab === "buildings"}
+        onClose={handleCloseMobilePanel}
+        title="Buildings"
+        icon="🏛️"
+        color="#fca5a5"
+      >
+        <BuildingList />
+      </MobilePanel>
+
+      <MobilePanel
+        isOpen={activeMobileTab === "upgrades"}
+        onClose={handleCloseMobilePanel}
+        title="Upgrades"
+        icon="⬆️"
+        color="#86efac"
+      >
+        <UpgradeList />
+      </MobilePanel>
+
+      <MobilePanel
+        isOpen={activeMobileTab === "ascension"}
+        onClose={handleCloseMobilePanel}
+        title="Ascension"
+        icon="✨"
+        color="#c084fc"
+      >
+        <AscensionPanel />
+        <TalentButton onClick={() => setIsTalentModalOpen(true)} />
+        <RuneShop />
+      </MobilePanel>
+
+      <MobilePanel
+        isOpen={activeMobileTab === "automation"}
+        onClose={handleCloseMobilePanel}
+        title="Automation"
+        icon="🤖"
+        color="#fcd34d"
+      >
+        <AutoClickerPanel />
+        <AutoBuyerPanel />
+      </MobilePanel>
 
       {/* Mana Surge Popup */}
       <ManaSurge />
