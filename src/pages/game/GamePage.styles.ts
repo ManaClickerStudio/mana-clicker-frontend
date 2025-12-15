@@ -44,6 +44,7 @@ export const ContentWrapper = styled.div`
   position: relative;
   z-index: 1;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 `;
@@ -57,12 +58,20 @@ export const Header = styled.header`
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(139, 92, 246, 0.3);
   flex-shrink: 0;
+
+  @media (max-width: 1023px) {
+    padding: 0.5rem 1rem;
+  }
 `;
 
 export const LogoSection = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
+
+  @media (max-width: 1023px) {
+    gap: 0.5rem;
+  }
 `;
 
 export const Logo = styled.div`
@@ -74,6 +83,14 @@ export const Logo = styled.div`
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: ${shimmer} 3s linear infinite;
+
+  @media (max-width: 1023px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 export const AutoSaveIndicator = styled.div`
@@ -91,6 +108,10 @@ export const AutoSaveIndicator = styled.div`
     background: #22c55e;
     animation: ${pulse} 2s ease-in-out infinite;
   }
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 export const StatsBar = styled.div`
@@ -101,6 +122,10 @@ export const StatsBar = styled.div`
   padding: 0.5rem 1.5rem;
   border-radius: 9999px;
   border: 1px solid rgba(139, 92, 246, 0.2);
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 export const StatItem = styled.div`
@@ -126,6 +151,10 @@ export const ProfileSection = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @media (max-width: 1023px) {
+    gap: 0.5rem;
+  }
 `;
 
 export const LogoutButton = styled.button`
@@ -139,6 +168,7 @@ export const LogoutButton = styled.button`
   font-size: 0.8rem;
   transition: all 0.2s ease;
   box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+  touch-action: manipulation;
 
   &:hover {
     transform: translateY(-1px);
@@ -147,6 +177,11 @@ export const LogoutButton = styled.button`
 
   &:active {
     transform: translateY(0);
+  }
+
+  @media (max-width: 1023px) {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.7rem;
   }
 `;
 
@@ -158,6 +193,13 @@ export const MainLayout = styled.main`
   padding: 1rem;
   min-height: 0;
   color: white;
+
+  @media (max-width: 1023px) {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
 `;
 
 export const CenterSection = styled.section`
@@ -166,6 +208,13 @@ export const CenterSection = styled.section`
   align-items: center;
   justify-content: center;
   gap: 2rem;
+
+  @media (max-width: 1023px) {
+    flex: 1;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0.5rem;
+  }
 `;
 
 export const ManaDisplay = styled.div`
@@ -181,6 +230,14 @@ export const ManaValue = styled.div`
   background-clip: text;
   text-shadow: 0 0 60px rgba(168, 85, 247, 0.5);
   line-height: 1;
+
+  @media (max-width: 1023px) {
+    font-size: 2.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 2rem;
+  }
 `;
 
 export const ManaLabel = styled.div`
@@ -188,6 +245,11 @@ export const ManaLabel = styled.div`
   color: #94a3b8;
   font-weight: 500;
   margin-top: 0.5rem;
+
+  @media (max-width: 1023px) {
+    font-size: 1rem;
+    margin-top: 0.25rem;
+  }
 `;
 
 export const CrystalWrapper = styled.div`
@@ -208,12 +270,21 @@ export const CrystalWrapper = styled.div`
     );
     border-radius: 50%;
     pointer-events: none;
+
+    @media (max-width: 480px) {
+      width: 240px;
+      height: 240px;
+    }
   }
 `;
 
 export const QuickStats = styled.div`
   display: flex;
   gap: 3rem;
+
+  @media (max-width: 1023px) {
+    gap: 1rem;
+  }
 `;
 
 export const QuickStat = styled.div`
@@ -243,6 +314,30 @@ export const QuickStat = styled.div`
     font-size: 0.875rem;
     color: #94a3b8;
   }
+
+  @media (max-width: 1023px) {
+    padding: 0.75rem 1.25rem;
+
+    .label {
+      font-size: 0.65rem;
+    }
+
+    .value {
+      font-size: 1.1rem;
+    }
+
+    .unit {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+
+    .value {
+      font-size: 1rem;
+    }
+  }
 `;
 
 export const LeftPanel = styled.div`
@@ -250,6 +345,10 @@ export const LeftPanel = styled.div`
   flex-direction: column;
   gap: 1rem;
   min-height: 0;
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 export const AutomationPanels = styled.div`
@@ -267,6 +366,10 @@ export const RightPanel = styled.div`
   border-radius: 1rem;
   border: 1px solid rgba(139, 92, 246, 0.2);
   overflow: hidden;
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 export const TabsHeader = styled.div`
@@ -322,4 +425,43 @@ export const TabContent = styled.div`
 
 export const BoostsWrapper = styled.div`
   margin-top: 1rem;
+
+  @media (max-width: 1023px) {
+    margin-top: 0.5rem;
+  }
+`;
+
+export const MobileStatsBar = styled.div`
+  display: none;
+
+  @media (max-width: 1023px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: rgba(30, 41, 59, 0.6);
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    flex-wrap: wrap;
+  }
+`;
+
+export const MobileStatItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  span:first-child {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+  }
+
+  span:last-child {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
 `;

@@ -41,6 +41,20 @@ export const CrystalContainer = styled.div`
   position: relative;
   transition: transform 100ms ease-out;
   animation: ${float} 4s ease-in-out infinite;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+
+  @media (max-width: 480px) {
+    width: 180px;
+    height: 180px;
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    width: 200px;
+    height: 200px;
+  }
 
   &:hover {
     transform: scale(1.08);
@@ -67,6 +81,16 @@ export const CrystalContainer = styled.div`
     );
     border-radius: 50%;
     pointer-events: none;
+
+    @media (max-width: 480px) {
+      width: 230px;
+      height: 230px;
+    }
+
+    @media (min-width: 481px) and (max-width: 768px) {
+      width: 260px;
+      height: 260px;
+    }
   }
 `;
 
