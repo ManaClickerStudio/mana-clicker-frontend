@@ -1,13 +1,11 @@
-# Plik: .github/workflows/deploy.yml
-
 name: Deploy Frontend na Vercel (Hobby)
 
 on:
   push:
     branches:
-      - main # Wdrażaj, gdy zmiany zostaną wypchnięte do gałęzi 'main'
+      - main  # Wdrażaj, gdy zmiany zostaną wypchnięte do gałęzi 'main'
   pull_request:
-    types: [opened, synchronize] # Twórz podglądy dla Pull Requestów
+    types: [opened, synchronize] # Twórz podglądy dla PR-ów
 
 jobs:
   deploy:
@@ -15,7 +13,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
+      
       # 1. Ustawienie środowiska
       - name: Ustawienie Node.js
         uses: actions/setup-node@v4
@@ -31,21 +29,24 @@ jobs:
         run: npm install
 
       # 4. Proces Budowania (Build)
-      # Vercel Actions automatycznie wykryje polecenia, ale dla pewności można dodać
       - name: Budowanie projektu
-        run: vercel build # Vercel CLI buduje projekt lokalnie
+        run: vercel build 
 
       # 5. Wdrożenie na Vercel
       - name: Deploy na Vercel
-        # Jeśli akcja jest wywołana przez PR, to jest to Preview Deployment.
-        # W przeciwnym razie, jeśli to push do main, to jest to Production Deployment.
-        run: vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          # 1. Sprawdzenie, czy to gałąź produkcyjna (main)
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            DEPLOY_FLAGS="--prod"
+          else
+            # Jeśli to Pull Request, tworzymy tylko Preview Deployment
+            DEPLOY_FLAGS=""
+          fi
+          
+          # 2. Wykonanie deployu z warunkowymi flagami
+          vercel deploy --prebuilt $DEPLOY_FLAGS --token ${{ secrets.VERCEL_TOKEN }}
+        
         env:
-          # VERCEL_TOKEN jest wymagany do autoryzacji
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          # Te zmienne informują Vercel CLI, na jaki projekt i konto ma wdrożyć:
-          VERCEL_ORG_ID: team_C4AZcVdFc11AMhFZJYIfMpJT
+          VERCEL_ORG_ID: w8aj4QeppJotshh5dndW4RdD
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        with:
-          # Opcja --prod jest dodawana TYLKO przy push do gałęzi main
-          prod: ${{ github.ref == 'refs/heads/main' }}
