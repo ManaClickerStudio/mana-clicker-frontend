@@ -30,7 +30,10 @@ jobs:
 
       # 4. Proces Budowania (Build)
       - name: Budowanie projektu
-        run: vercel build 
+        run: npm run build
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       # 5. Wdrożenie na Vercel
       - name: Deploy na Vercel
