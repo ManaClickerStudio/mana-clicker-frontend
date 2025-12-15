@@ -3,9 +3,9 @@ name: Deploy Frontend na Vercel (Hobby)
 on:
   push:
     branches:
-      - main  # Wdrażaj, gdy zmiany zostaną wypchnięte do gałęzi 'main'
+      - main
   pull_request:
-    types: [opened, synchronize] # Twórz podglądy dla PR-ów
+    types: [opened, synchronize]
 
 jobs:
   deploy:
@@ -14,39 +14,41 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
       
-      # 1. Ustawienie środowiska
       - name: Ustawienie Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      # 2. Instalacja Vercel CLI
       - name: Instalacja Vercel CLI
         run: npm install -g vercel@latest
 
-      # 3. Instalacja zależności projektu
       - name: Instalacja zależności
         run: npm install
 
-      # 4. Proces Budowania (Build)
-      - name: Budowanie projektu
-        run: npm run build
+      - name: Pobranie Ustawień Projektu Vercel
+        run: vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: w8aj4QeppJotshh5dndW4RdD 
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Budowanie projektu (vercel build)
+        run: vercel build
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: w8aj4QeppJotshh5dndW4RdD 
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # 5. Wdrożenie na Vercel
       - name: Deploy na Vercel
         run: |
-          # 1. Sprawdzenie, czy to gałąź produkcyjna (main)
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             DEPLOY_FLAGS="--prod"
           else
-            # Jeśli to Pull Request, tworzymy tylko Preview Deployment
             DEPLOY_FLAGS=""
           fi
           
-          # 2. Wykonanie deployu z warunkowymi flagami
           vercel deploy --prebuilt $DEPLOY_FLAGS --token ${{ secrets.VERCEL_TOKEN }}
         
         env:
